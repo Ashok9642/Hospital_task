@@ -1,0 +1,10 @@
+const express = require('express');
+const router = express.Router();
+const { getPatients, createPatient, getProfile, updateProfile } = require('../controllers/patientController');
+const verifyToken = require('../middleware/auth');
+router.use(verifyToken);
+router.get('/', getPatients);
+router.post('/', createPatient);
+router.get('/profile', getProfile);
+router.put('/profile', updateProfile);
+module.exports = router;
