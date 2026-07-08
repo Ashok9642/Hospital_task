@@ -2,28 +2,32 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loadUser } from './reduxfeature/authSlice';
+
 import Navbar from './Pages/Navbar';
 import Signup from './Pages/Signup';
 import Login from './Pages/Login';
 import Home from './Pages/Home';
+
 import AdminDashboard from './Pages/admin/Dashboard';
 import AdminDoctors from './Pages/admin/Doctors';
 import AdminPatients from './Pages/admin/Patients';
 import AdminAppointments from './Pages/admin/Appointments';
+
 import DoctorDashboard from './Pages/doctor/Dashboard';
 import DoctorPatients from './Pages/doctor/Patients';
 import DoctorAppointments from './Pages/doctor/Appointments';
+
 import PatientDashboard from './Pages/patient/Dashboard';
 import PatientDoctors from './Pages/patient/Doctors';
 import PatientAppointments from './Pages/patient/MyAppointments';
 import PatientProfile from './Pages/patient/Profile';
+
 import ProtectedRoute from './routes/ProtectedRoute';
 
 function App() {
   const dispatch = useDispatch();
-  const { isLoggedIn, initialized, user } = useSelector((state) => state.auth);
 
-  const role = user?.role;
+  const { initialized, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(loadUser());
@@ -39,8 +43,13 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Signup />} />
+
         <Route path="/login" element={<Login />} />
+
         <Route path="/home" element={<Home />} />
+
+        {/* Admin Routes */}
+
         <Route
           path="/admin/dashboard"
           element={
@@ -76,6 +85,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Doctor Routes */}
+
         <Route
           path="/doctor/dashboard"
           element={
@@ -85,14 +97,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/doctor/patients"
-          element={
-            // <ProtectedRoute role="doctor">
-            <DoctorPatients />
-            // </ProtectedRoute>
-          }
-        />
+        <Route path="/doctor/patients" element={<DoctorPatients />} />
 
         <Route
           path="/doctor/appointments"
@@ -102,6 +107,9 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Patient Routes */}
+
         <Route
           path="/patient/dashboard"
           element={
@@ -110,6 +118,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/patient/doctors"
           element={
@@ -128,14 +137,8 @@ function App() {
           }
         />
 
-        <Route
-          path="/patient/profile"
-          element={
-            // <ProtectedRoute role="patient">
-            <PatientProfile />
-            // </ProtectedRoute>
-          }
-        />
+        <Route path="/patient/profile" element={<PatientProfile />} />
+
         <Route path="*" element={<Navigate to="/home" />} />
       </Routes>
     </BrowserRouter>
