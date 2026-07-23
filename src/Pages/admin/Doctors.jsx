@@ -26,13 +26,14 @@ const Doctors = () => {
     phone: '',
     specialization: '',
     experience: '',
+    password: '',
   });
 
   // GET doctors
   const getDoctors = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/doctors');
-      setDoctors(res.data);
+      setDoctors(res.data.data);
     } catch (err) {
       console.log(err);
     }
@@ -91,6 +92,7 @@ const Doctors = () => {
             <tr>
               <th className="p-3">Name</th>
               <th className="p-3">Email</th>
+              {/* <th className="p-3">Password</th> */}
               <th className="p-3">Phone</th>
               <th className="p-3">Specialization</th>
               <th className="p-3">Experience</th>
@@ -141,6 +143,15 @@ const Doctors = () => {
                 name="email"
                 placeholder="Email"
                 value={formData.email}
+                onChange={handleChange}
+                className="w-full border p-2 mb-3 rounded"
+                required
+              />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
                 onChange={handleChange}
                 className="w-full border p-2 mb-3 rounded"
                 required

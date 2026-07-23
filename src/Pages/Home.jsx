@@ -71,3 +71,36 @@ function Home() {
 }
 
 export default Home;
+//import { React, useState, useEffect } from 'react';
+//import axios from 'axios';
+
+// function Home() {
+//   const [data, setData] = useState([]);
+//   const [search, setSearch] = useState();
+//   useEffect(() => {
+//     const timer = setTimeout(async () => {
+//       try {
+//         const result = await axios.get('https://jsonplaceholder.typicode.com/users');
+
+//         console.log('API Called for:', search);
+//         setData(result.data);
+//       } catch (err) {
+//         console.log(err);
+//       }
+//     }, 5000);
+
+//     return () => clearTimeout(timer);
+//   }, [search]);
+
+//   return (
+//     <div>
+//       <ul>
+//         <input type="text" onChange={(e) => setSearch(e.target.value)} />
+//         {data.map((item) => (
+//           <li key={item.id}>{item.name}</li>
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// }
+// export default Home;

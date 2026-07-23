@@ -6,14 +6,22 @@ const {
   createDoctor,
   getDoctorPatients,
   getDoctorAppointments,
+  doctordashboardetails,
+  getDoctorById,
 } = require('../controllers/doctorController');
-
+console.log({
+  getDoctors,
+  createDoctor,
+  getDoctorPatients,
+  getDoctorAppointments,
+  doctordashboardetails,
+  getDoctorById,
+});
 router.get('/', getDoctors);
-
 router.post('/', createDoctor);
-
-// New Route
 router.get('/patients', getDoctorPatients);
 router.get('/appointments', getDoctorAppointments);
+router.get('/dashboard', doctordashboardetails);
+router.get('/:id', getDoctorById);
 
 module.exports = router;

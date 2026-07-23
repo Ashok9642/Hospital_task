@@ -5,6 +5,10 @@ import { logout } from '../reduxfeature/authSlice';
 
 function Navbar() {
   const { isLoggedIn, user } = useSelector((state) => state.auth);
+  console.log('AUTH:', {
+    isLoggedIn,
+    user,
+  });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -13,7 +17,6 @@ function Navbar() {
   return (
     <nav className="bg-blue-600 p-4">
       <ul className="flex gap-4 text-white items-center">
-        {/* PUBLIC */}
         {!isLoggedIn && (
           <>
             <li>
@@ -24,15 +27,11 @@ function Navbar() {
             </li>
           </>
         )}
-
-        {/* LOGGED IN */}
         {isLoggedIn && (
           <>
             <li>
               <Link to="/home">Home</Link>
             </li>
-
-            {/* ADMIN */}
             {role === 'admin' && (
               <>
                 <li>
@@ -49,8 +48,6 @@ function Navbar() {
                 </li>
               </>
             )}
-
-            {/* DOCTOR */}
             {role === 'doctor' && (
               <>
                 <li>
@@ -64,8 +61,6 @@ function Navbar() {
                 </li>
               </>
             )}
-
-            {/* PATIENT */}
             {role === 'patient' && (
               <>
                 <li>
@@ -82,8 +77,6 @@ function Navbar() {
                 </li>
               </>
             )}
-
-            {/* LOGOUT */}
             <li>
               <button
                 className="bg-red-500 px-3 py-1 rounded"

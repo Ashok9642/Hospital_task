@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/api';
-
+import { formatDate, formatTime } from '../../utils/dateFormatter';
 export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
 
@@ -55,8 +55,8 @@ export default function MyAppointments() {
             {appointments.map((app) => (
               <tr key={app._id} className="border-t">
                 <td className="p-3">{app.doctor.name}</td>
-                <td className="p-3">{new Date(app.date).toLocaleDateString()}</td>
-                <td className="p-3">{app.time}</td>
+                <td className="p-3">{formatDate(app.date)}</td>
+                <td className="p-3">{formatTime(app.time)}</td>
 
                 <td className="p-3">
                   <span

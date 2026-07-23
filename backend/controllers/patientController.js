@@ -1,144 +1,132 @@
 const Patient = require('../models/Patient');
+const Appointment = require('../models/Appointment');
+const asyncHandler = require('../middleware/asyncHandler');
 
-// Get All Patients
-const getPatients = async (req, res) => {
-  try {
-    const patients = await Patient.find().sort({ createdAt: -1 });
+const getPatients = asyncHandler(async (req, res) => {
+  const patients = await Patient.find().sort({ createdAt: -1 });
 
-    res.status(200).json(patients);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+  res.status(200).json(patients);
+});
+
+const getPatientById = asyncHandler(async (req, res) => {
+  const patient = await Patient.findById(req.params.id);
+
+  if (!patient) {
+    const error = new Error('Patient not found');
+    error.statusCode = 404;
+    throw error;
   }
-};
 
-// Get Single Patient
-const getPatientById = async (req, res) => {
-  try {
-    const patient = await Patient.findById(req.params.id);
+  res.status(200).json(patient);
+});
+const createPatient = asyncHandler(async (req, res) => {
+  const { userId, name, age, gender, phone } = req.body;
 
-    if (!patient) {
-      return res.status(404).json({
-        success: false,
-        message: 'Patient not found',
-      });
-    }
+  const patient = await Patient.create({
+    userId,
+    name,
+    age,
+    gender,
+    phone,
+  });
 
-    res.status(200).json(patient);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+  res.status(201).json({
+    success: true,
+    message: 'Patient created successfully',
+    patient,
+  });
+});
+
+const updatePatient = asyncHandler(async (req, res) => {
+  const patient = await Patient.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!patient) {
+    const error = new Error('Patient not found');
+    error.statusCode = 404;
+    throw error;
   }
-};
 
-// Create Patient
-const createPatient = async (req, res) => {
-  try {
-    const { userId, name, age, gender, phone } = req.body;
-    console.log('Fromm create paitents');
-    console.log(req.body);
-
-    const patient = await Patient.create({
-      userId,
-      name,
-      age,
-      gender,
-      phone,
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Patient created successfully',
-      patient,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-// Update Patient
-const updatePatient = async (req, res) => {
-  try {
-    const patient = await Patient.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!patient) {
-      return res.status(404).json({
-        success: false,
-        message: 'Patient not found',
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Patient updated successfully',
-      patient,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
+  res.status(200).json({
+    success: true,
+    message: 'Patient updated successfully',
+    patient,
+  });
+});
 
 // Delete Patient
-const deletePatient = async (req, res) => {
-  try {
-    const patient = await Patient.findByIdAndDelete(req.params.id);
+const deletePatient = asyncHandler(async (req, res) => {
+  const patient = await Patient.findByIdAndDelete(req.params.id);
 
-    if (!patient) {
-      return res.status(404).json({
-        success: false,
-        message: 'Patient not found',
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Patient deleted successfully',
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+  if (!patient) {
+    const error = new Error('Patient not found');
+    error.statusCode = 404;
+    throw error;
   }
-};
 
-const getProfile = async (req, res) => {
-  try {
-    console.log('from here', req.user.id);
-    const userId = req.user.id;
+  res.status(200).json({
+    success: true,
+    message: 'Patient deleted successfully',
+  });
+});
+const getProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
 
-    const profile = await Patient.findOne({ userId });
+  const profile = await Patient.findOne({
+    userId,
+  });
 
-    res.json(profile);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  if (!profile) {
+    const error = new Error('Profile not found');
+    error.statusCode = 404;
+    throw error;
   }
-};
 
-const updateProfile = async (req, res) => {
-  try {
-    const userId = req.user.id;
+  res.json(profile);
+});
+const updateProfile = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
 
-    const updated = await Patient.findOneAndUpdate({ userId }, req.body, { new: true });
+  const updated = await Patient.findOneAndUpdate({ userId }, req.body, {
+    new: true,
+  });
 
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  if (!updated) {
+    const error = new Error('Profile not found');
+    error.statusCode = 404;
+    throw error;
   }
-};
+
+  res.json(updated);
+});
+
+const getPatientDashboard = asyncHandler(async (req, res) => {
+  const userId = req.user?.id;
+
+  const patient = await Patient.findOne({
+    userId,
+  });
+
+  if (!patient) {
+    const error = new Error('Patient not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const appointments = await Appointment.find({
+    patient: patient._id,
+  })
+    .populate('doctor', 'name specialization email')
+    .sort({ date: -1 });
+
+  res.status(200).json({
+    success: true,
+    patient,
+    appointments,
+  });
+});
 
 module.exports = {
   getPatients,
@@ -148,4 +136,5 @@ module.exports = {
   deletePatient,
   updateProfile,
   getProfile,
+  getPatientDashboard,
 };

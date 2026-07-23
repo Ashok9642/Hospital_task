@@ -33,7 +33,7 @@ api.interceptors.response.use(
         console.log('Refresh token failed:', refreshError);
 
         // ❌ SAFE REDIRECT
-        window.location.href = '/login';
+        // window.location.href = '/login';
       }
     }
 

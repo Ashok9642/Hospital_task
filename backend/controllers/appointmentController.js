@@ -1,112 +1,156 @@
 const Appointment = require('../models/Appointment');
+const Patient = require('../models/Patient');
+const asyncHandler = require('../middleware/asyncHandler');
 
-const createAppointment = async (req, res) => {
-  try {
-    const { doctorId, patientId, appointmentDate, appointmentTime, status } = req.body;
+// Create Appointment
+const createAppointment = asyncHandler(async (req, res) => {
+  const { doctorId, patientId, appointmentDate, appointmentTime, status, reason } = req.body;
 
-    const appointment = await Appointment.create({
-      doctor: doctorId,
-      patient: patientId,
-      date: appointmentDate,
-      time: appointmentTime,
-      status: status || 'Pending',
+  let finalPatientId = patientId;
+
+  if (!finalPatientId && req.user?.role === 'patient') {
+    const patient = await Patient.findOne({
+      userId: req.user.id,
     });
 
-    res.status(201).json({
-      success: true,
-      message: 'Appointment created successfully',
-      data: appointment,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-/* ---------------- GET ALL ---------------- */
-const getAppointments = async (req, res) => {
-  try {
-    const appointments = await Appointment.find()
-      .populate('doctor', 'name email specialization')
-      .populate('patient', 'name email phone');
-
-    res.status(200).json({
-      success: true,
-      data: appointments,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-const updateAppointment = async (req, res) => {
-  try {
-    const appointment = await Appointment.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    res.status(200).json({
-      success: true,
-      message: 'Updated successfully',
-      data: appointment,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-
-const deleteAppointment = async (req, res) => {
-  try {
-    await Appointment.findByIdAndDelete(req.params.id);
-
-    res.status(200).json({
-      success: true,
-      message: 'Deleted successfully',
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
-const getAppointmentById = async (req, res) => {
-  try {
-    const appointment = await Appointment.findById(req.params.id)
-      .populate('doctor', 'name email specialization')
-      .populate('patient', 'name email phone');
-
-    if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        message: 'Appointment not found',
-      });
+    if (!patient) {
+      const error = new Error('Patient not found');
+      error.statusCode = 404;
+      throw error;
     }
 
-    res.status(200).json({
-      success: true,
-      data: appointment,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+    finalPatientId = patient._id;
   }
-};
+
+  const appointment = await Appointment.create({
+    doctor: doctorId,
+
+    patient: finalPatientId,
+
+    date: appointmentDate,
+
+    time: appointmentTime,
+
+    reasons: reason || '',
+
+    status: status || 'Pending',
+  });
+
+  res.status(201).json({
+    success: true,
+
+    message: 'Appointment created successfully',
+
+    data: appointment,
+  });
+});
+
+// Get Patient Appointments
+const getAppointments = asyncHandler(async (req, res) => {
+  const patient = await Patient.findOne({
+    userId: req.user.id,
+  });
+
+  if (!patient) {
+    const error = new Error('Patient not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const appointments = await Appointment.find({
+    patient: patient._id,
+  })
+
+    .populate('doctor', 'name email specialization')
+
+    .populate('patient', 'name email phone');
+
+  res.status(200).json({
+    success: true,
+
+    data: appointments,
+  });
+});
+
+const updateAppointment = asyncHandler(async (req, res) => {
+  const appointment = await Appointment.findByIdAndUpdate(
+    req.params.id,
+
+    req.body,
+
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  if (!appointment) {
+    const error = new Error('Appointment not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  res.status(200).json({
+    success: true,
+
+    message: 'Updated successfully',
+
+    data: appointment,
+  });
+});
+const deleteAppointment = asyncHandler(async (req, res) => {
+  const appointment = await Appointment.findByIdAndDelete(req.params.id);
+
+  if (!appointment) {
+    const error = new Error('Appointment not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  res.status(200).json({
+    success: true,
+
+    message: 'Deleted successfully',
+  });
+});
+const getAppointmentById = asyncHandler(async (req, res) => {
+  const appointment = await Appointment.findById(req.params.id)
+
+    .populate('doctor', 'name email specialization')
+
+    .populate('patient', 'name email phone');
+
+  if (!appointment) {
+    const error = new Error('Appointment not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  res.status(200).json({
+    success: true,
+    data: appointment,
+  });
+});
+
+const getAllAppointments = asyncHandler(async (req, res) => {
+  const appointments = await Appointment.find()
+
+    .populate('doctor', 'name email specialization')
+
+    .populate('patient', 'name email phone')
+
+    .sort({
+      createdAt: -1,
+    });
+
+  res.status(200).json({ success: true, data: appointments });
+});
+
 module.exports = {
   createAppointment,
   getAppointments,
   updateAppointment,
   deleteAppointment,
+  getAllAppointments,
   getAppointmentById,
 };

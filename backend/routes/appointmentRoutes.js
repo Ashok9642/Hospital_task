@@ -7,21 +7,14 @@ const {
   getAppointments,
   getAppointmentById,
   deleteAppointment,
+  getAllAppointments,
 } = require('../controllers/appointmentController');
-
-// Create appointment
+const verifyToken = require('../middleware/auth');
+router.use(verifyToken);
 router.post('/', createAppointment);
-
-// Get all appointments (or user-based if you add auth)
 router.get('/', getAppointments);
-
-// Get single appointment (optional)
+router.get('/all', getAllAppointments);
 router.get('/:id', getAppointmentById);
-
-// Update appointment (status update also happens here)
 router.put('/:id', updateAppointment);
-
-// Delete appointment
 router.delete('/:id', deleteAppointment);
-
 module.exports = router;

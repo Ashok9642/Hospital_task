@@ -21,14 +21,17 @@ const Appointments = () => {
       const [doctorRes, patientRes, appointmentRes] = await Promise.all([
         api.get('/doctors'),
         api.get('/patients'),
-        api.get('/appointments'),
+        api.get('/appointments/all'),
       ]);
 
       setDoctors(doctorRes.data?.data || doctorRes.data || []);
+
       setPatients(patientRes.data?.data || patientRes.data || []);
+
       setAppointments(appointmentRes.data?.data || []);
     } catch (error) {
-      console.log('API Error:', error);
+      console.log('Fetch Error:', error);
+
       setDoctors([]);
       setPatients([]);
       setAppointments([]);
@@ -51,17 +54,15 @@ const Appointments = () => {
   };
 
   const handleCreate = async () => {
+    if (!formData.doctorId || !formData.patientId || !formData.appointmentDate || !formData.appointmentTime) {
+      alert('Please fill all fields');
+      return;
+    }
+
     try {
-      const payload = {
-        doctorId: formData.doctorId,
-        patientId: formData.patientId,
-        appointmentDate: formData.appointmentDate,
-        appointmentTime: formData.appointmentTime,
-      };
+      const response = await api.post('/appointments', formData);
 
-      const res = await api.post('/appointments', payload);
-
-      if (res.status === 200 || res.status === 201) {
+      if (response.status === 200 || response.status === 201) {
         alert('Appointment Created Successfully');
 
         setFormData({
@@ -74,55 +75,54 @@ const Appointments = () => {
         fetchData();
       }
     } catch (error) {
-      console.log('Create Error:', error?.response?.data || error.message);
-      alert(error?.response?.data?.message || 'Error creating appointment');
+      console.log('Create Error:', error?.response?.data);
+
+      alert(error?.response?.data?.message || 'Appointment creation failed');
     }
   };
 
-  // ---------------- UI ----------------
+  const today = new Date().toISOString().split('T')[0];
+
   return (
     <div className="min-h-screen bg-slate-100 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* HEADER */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-800">Appointment Management</h1>
-        </div>
+        <h1 className="text-3xl font-bold text-slate-800 mb-8">Appointment Management</h1>
 
-        {/* FORM */}
+        {/* Create Appointment */}
+
         <div className="bg-white rounded-2xl shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Create Appointment</h2>
+          <h2 className="text-xl font-semibold mb-5">Create Appointment</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* DOCTOR */}
             <select name="doctorId" value={formData.doctorId} onChange={handleChange} className="border p-2 rounded">
-              <option value="">Select Doctor</option>
-              {doctors.map((doc) => (
-                <option key={doc._id} value={doc._id}>
-                  {doc.name}
+              <option value="">Select Doctor *</option>
+
+              {doctors.map((doctor) => (
+                <option key={doctor._id} value={doctor._id}>
+                  {doctor.name}
                 </option>
               ))}
             </select>
 
-            {/* PATIENT */}
             <select name="patientId" value={formData.patientId} onChange={handleChange} className="border p-2 rounded">
-              <option value="">Select Patient</option>
-              {patients.map((pat) => (
-                <option key={pat._id} value={pat._id}>
-                  {pat.name}
+              <option value="">Select Patient *</option>
+
+              {patients.map((patient) => (
+                <option key={patient._id} value={patient._id}>
+                  {patient.name}
                 </option>
               ))}
             </select>
 
-            {/* DATE */}
             <input
               type="date"
               name="appointmentDate"
               value={formData.appointmentDate}
               onChange={handleChange}
+              min={today}
               className="border p-2 rounded"
             />
 
-            {/* TIME */}
             <input
               type="time"
               name="appointmentTime"
@@ -132,12 +132,27 @@ const Appointments = () => {
             />
           </div>
 
-          <button onClick={handleCreate} className="mt-4 bg-blue-600 text-white px-6 py-2 rounded">
-            Create
+          <button
+            disabled={
+              !formData.doctorId || !formData.patientId || !formData.appointmentDate || !formData.appointmentTime
+            }
+            onClick={handleCreate}
+            className="
+            mt-5
+            bg-blue-600
+            text-white
+            px-6
+            py-2
+            rounded
+            disabled:bg-gray-400
+            "
+          >
+            Create Appointment
           </button>
         </div>
 
-        {/* TABLE */}
+        {/* Appointment List */}
+
         <div className="bg-white rounded-2xl shadow overflow-hidden">
           <div className="p-4 border-b">
             <h2 className="text-xl font-semibold">Appointments List</h2>
@@ -151,37 +166,52 @@ const Appointments = () => {
                 <thead className="bg-slate-800 text-white">
                   <tr>
                     <th className="p-3 text-left">Patient</th>
+
                     <th className="p-3 text-left">Doctor</th>
+
                     <th className="p-3 text-left">Date</th>
+
                     <th className="p-3 text-left">Time</th>
+
                     <th className="p-3 text-left">Status</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {appointments.length > 0 ? (
-                    appointments.map((a) => (
-                      <tr key={a._id} className="border-b">
-                        <td className="p-3">{a.patient?.name || '-'}</td>
-                        <td className="p-3">{a.doctor?.name || '-'}</td>
+                    appointments.map((appointment) => (
+                      <tr key={appointment._id} className="border-b">
+                        <td className="p-3">{appointment.patient?.name || '-'}</td>
+
+                        <td className="p-3">{appointment.doctor?.name || '-'}</td>
 
                         <td className="p-3">
-                          {a.appointmentDate ? new Date(a.appointmentDate).toLocaleDateString() : '-'}
+                          {appointment.date ? new Date(appointment.date).toLocaleDateString() : '-'}
                         </td>
 
-                        <td className="p-3">{a.appointmentTime || '-'}</td>
+                        <td className="p-3">{appointment.time || '-'}</td>
 
                         <td className="p-3">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              a.status === 'Confirmed'
-                                ? 'bg-green-100 text-green-700'
-                                : a.status === 'Cancelled'
+                            className={`
+                          px-3
+                          py-1
+                          rounded-full
+                          text-xs
+                          font-medium
+
+                          ${
+                            appointment.status === 'Confirmed'
+                              ? 'bg-green-100 text-green-700'
+                              : appointment.status === 'Completed'
+                                ? 'bg-blue-100 text-blue-700'
+                                : appointment.status === 'Cancelled'
                                   ? 'bg-red-100 text-red-700'
                                   : 'bg-yellow-100 text-yellow-700'
-                            }`}
+                          }
+                          `}
                           >
-                            {a.status || 'Pending'}
+                            {appointment.status || 'Pending'}
                           </span>
                         </td>
                       </tr>

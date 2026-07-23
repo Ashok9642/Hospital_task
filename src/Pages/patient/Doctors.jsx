@@ -30,14 +30,14 @@ export default function Doctors() {
 
             <div className="flex gap-2 mt-4">
               <button
-                onClick={() => navigate(`/patient/doctors/${doc._id}`)}
+                onClick={() => navigate(`/patient/doctordetails/${doc._id}`)}
                 className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
               >
                 View
               </button>
 
               <button
-                onClick={() => navigate(`/patient/book/${doc._id}`)}
+                onClick={() => navigate(`/patient/booking/${doc._id}`)}
                 className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
               >
                 Book

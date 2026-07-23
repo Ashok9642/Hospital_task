@@ -130,21 +130,23 @@ const Patients = () => {
 
   // AG GRID COLUMN DEFINITIONS
   const columnDefs = [
-    { headerName: 'Name', sortable: true, filter: true, field: 'name' },
-    { headerName: 'Age', sortable: true, filter: true, field: 'age' },
-    { headerName: 'Gender', sortable: true, filter: true, field: 'gender' },
-    { headerName: 'Phone', sortable: true, filter: true, field: 'phone' },
-
+    { headerName: 'Name', field: 'name', flex: 2 },
+    { headerName: 'Age', field: 'age', flex: 1 },
+    { headerName: 'Gender', field: 'gender', flex: 1 },
+    { headerName: 'Phone', field: 'phone', flex: 2 },
     {
       headerName: 'Actions',
       field: '_id',
+      flex: 1,
+      sortable: false,
+      filter: false,
       cellRenderer: (params) => (
-        <div>
-          <button onClick={() => handleEdit(params.data)} className="bg-green-500 text-white px-2 py-1 mr-2">
+        <div className="flex gap-2 items-center h-full">
+          <button onClick={() => handleEdit(params.data)} className="bg-green-500 text-white px-5 py-1 rounded">
             Edit
           </button>
 
-          <button onClick={() => handleDelete(params.data._id)} className="bg-red-500 text-white px-2 py-1">
+          <button onClick={() => handleDelete(params.data._id)} className="bg-red-500 text-white px-5 py-1 rounded">
             Delete
           </button>
         </div>
@@ -185,11 +187,9 @@ const Patients = () => {
       <div className="ag-theme-alpine bg-white" style={{ height: 500, width: '100%' }}>
         <AgGridReact rowData={patients} columnDefs={columnDefs} pagination={true} paginationPageSize={5} />
       </div>
-
-      {/* MODAL */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-2xl font-bold mb-4">{editId ? 'Edit Patient' : 'Add Patient'}</h2>
 
             <form onSubmit={handleSubmit}>
@@ -198,7 +198,7 @@ const Patients = () => {
                 placeholder="Name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full border p-2 mb-2"
+                className="w-full border rounded p-2 mb-2"
                 required
               />
 
@@ -207,18 +207,18 @@ const Patients = () => {
                 placeholder="Email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full border p-2 mb-2"
+                className="w-full border rounded p-2 mb-2"
                 required
                 disabled={!!editId}
               />
 
               <input
                 name="password"
-                placeholder="Password"
                 type="password"
+                placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border p-2 mb-2"
+                className="w-full border rounded p-2 mb-2"
                 required={!editId}
               />
 
@@ -227,7 +227,7 @@ const Patients = () => {
                 placeholder="Age"
                 value={formData.age}
                 onChange={handleChange}
-                className="w-full border p-2 mb-2"
+                className="w-full border rounded p-2 mb-2"
                 required
               />
 
@@ -235,7 +235,7 @@ const Patients = () => {
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                className="w-full border p-2 mb-2"
+                className="w-full border rounded p-2 mb-2"
                 required
               >
                 <option value="">Select Gender</option>
@@ -248,16 +248,20 @@ const Patients = () => {
                 placeholder="Phone"
                 value={formData.phone}
                 onChange={handleChange}
-                className="w-full border p-2 mb-3"
+                className="w-full border rounded p-2 mb-4"
                 required
               />
 
               <div className="flex justify-end gap-2">
-                <button type="button" onClick={() => setShowModal(false)} className="bg-gray-500 text-white px-4 py-2">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+                >
                   Cancel
                 </button>
 
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2">
+                <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
                   {editId ? 'Update' : 'Save'}
                 </button>
               </div>
@@ -265,7 +269,6 @@ const Patients = () => {
           </div>
         </div>
       )}
-
       <AiAssistant />
     </div>
   );

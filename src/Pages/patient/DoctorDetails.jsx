@@ -3,72 +3,64 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
 export default function DoctorDetails() {
-  const { id } = useParams();
+  const { doctorId } = useParams();
   const navigate = useNavigate();
 
   const [doctor, setDoctor] = useState(null);
-  const [selectedSlot, setSelectedSlot] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api
-      .get(`/doctors/${id}`)
-      .then((res) => setDoctor(res.data))
-      .catch((err) => console.log(err));
-  }, [id]);
+    const fetchDoctor = async () => {
+      try {
+        const res = await api.get(`/doctors/${doctorId}`);
+        setDoctor(res.data.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const bookAppointment = async () => {
-    if (!selectedSlot) {
-      alert('Please select a slot');
-      return;
+    if (doctorId) {
+      fetchDoctor();
     }
+  }, [doctorId]);
 
-    try {
-      await api.post('/appointments', {
-        doctorId: id,
-        date: '2026-07-10',
-        time: selectedSlot,
-        symptoms: 'General checkup',
-      });
+  if (loading) {
+    return <h2>Loading...</h2>;
+  }
 
-      alert('Appointment Booked Successfully ✅');
-
-      navigate('/patient/appointments');
-    } catch (err) {
-      console.log(err);
-      alert('Booking failed ❌');
-    }
-  };
-
-  if (!doctor) return <div className="p-5">Loading...</div>;
+  if (!doctor) {
+    return <h2>Doctor not found</h2>;
+  }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold">{doctor.name}</h2>
+      <h1 className="text-2xl font-bold">{doctor.name}</h1>
 
-      <p className="text-gray-600">{doctor.specialization}</p>
+      <p className="mt-3">Specialization: {doctor.specialization}</p>
 
-      <p className="mt-2">Experience: {doctor.experience} years</p>
+      <p>Experience: {doctor.experience} years</p>
 
-      <p>Consultation Fee: ₹{doctor.fee}</p>
+      <p>Consultation Fee: ₹ {doctor.consultationFee}</p>
 
-      {/* Slots */}
-      <h3 className="text-lg font-semibold mt-6 mb-2">Available Slots ⏰</h3>
+      <h2 className="mt-6 text-xl font-semibold">Available Slots ⏰</h2>
 
-      <div className="flex gap-3 flex-wrap">
-        {doctor.availableSlots?.map((slot, i) => (
-          <button
-            key={i}
-            onClick={() => setSelectedSlot(slot)}
-            className={`px-4 py-2 rounded border 
-              ${selectedSlot === slot ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-100'}`}
-          >
-            {slot}
-          </button>
-        ))}
-      </div>
-
-      {/* Book Button */}
-      <button onClick={bookAppointment} className="mt-6 bg-blue-500 text-white px-5 py-2 rounded hover:bg-blue-600">
+      {doctor.availableSlots && doctor.availableSlots.length > 0 ? (
+        <div className="mt-3">
+          {doctor.availableSlots.map((slot, index) => (
+            <button key={index} className="border px-4 py-2 mr-2 rounded">
+              {slot}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-2">No slots available</p>
+      )}
+      <button
+        onClick={() => navigate(`/patient/booking/${doctor._id}`)}
+        className="mt-8 bg-blue-500 text-white px-6 py-3 rounded"
+      >
         Book Appointment
       </button>
     </div>
