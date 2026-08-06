@@ -1,33 +1,28 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Chat from './Pages/Chat/Chat';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { loadUser } from './reduxfeature/authSlice';
 
-/* Layouts */
 import PublicLayout from './layouts/PublicLayout';
 import PrivateLayout from './layouts/PrivateLayout';
 
-/* Pages */
 import Signup from './Pages/Signup';
 import Login from './Pages/Login';
 import Home from './Pages/Home';
 
-/* Routes */
 import ProtectedRoute from './routes/ProtectedRoute';
 
-/* Admin */
 import AdminDashboard from './Pages/admin/Dashboard';
 import AdminDoctors from './Pages/admin/Doctors';
 import AdminPatients from './Pages/admin/Patients';
 import AdminAppointments from './Pages/admin/Appointments';
 
-/* Doctor */
 import DoctorDashboard from './Pages/doctor/Dashboard';
 import DoctorPatients from './Pages/doctor/Patients';
 import DoctorAppointments from './Pages/doctor/Appointments';
 
-/* Patient */
 import PatientDashboard from './Pages/patient/Dashboard';
 import PatientDoctors from './Pages/patient/Doctors';
 import PatientAppointments from './Pages/patient/MyAppointments';
@@ -35,14 +30,45 @@ import PatientProfile from './Pages/patient/Profile';
 import BookAppointment from './Pages/patient/Booking';
 import DoctorDetails from './Pages/patient/DoctorDetails';
 
+import socket from './services/socket';
+
 function App() {
   const dispatch = useDispatch();
 
-  const { initialized, isLoggedIn } = useSelector((state) => state.auth);
+  const { initialized, isLoggedIn, user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(loadUser());
   }, [dispatch]);
+
+  // Socket Connection + Room Join
+
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log('Connected:', socket.id);
+
+      if (user?.id && user?.role) {
+        socket.emit('joinRoom', {
+          userId: user.id,
+          role: user.role,
+        });
+
+        console.log(`${user.role} joined room`);
+      }
+    };
+
+    socket.on('connect', handleConnect);
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected');
+    });
+
+    return () => {
+      socket.off('connect', handleConnect);
+
+      socket.off('disconnect');
+    };
+  }, [user]);
 
   if (!initialized) {
     return <h2>Loading...</h2>;
@@ -51,7 +77,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ================= PUBLIC ROUTES ================= */}
+        {/* SAME ROUTES */}
 
         <Route
           path="/signup"
@@ -79,8 +105,6 @@ function App() {
           }
         />
 
-        {/* ================= PRIVATE ROUTES ================= */}
-
         <Route
           path="/home"
           element={
@@ -91,54 +115,6 @@ function App() {
             </PrivateLayout>
           }
         />
-
-        {/* ================= ADMIN ================= */}
-
-        <Route
-          path="/admin/dashboard"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="admin">
-                <AdminDashboard />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
-
-        <Route
-          path="/admin/doctors"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="admin">
-                <AdminDoctors />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
-
-        <Route
-          path="/admin/patients"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="admin">
-                <AdminPatients />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
-
-        <Route
-          path="/admin/appointments"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="admin">
-                <AdminAppointments />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
-
-        {/* ================= DOCTOR ================= */}
 
         <Route
           path="/doctor/dashboard"
@@ -173,8 +149,6 @@ function App() {
           }
         />
 
-        {/* ================= PATIENT ================= */}
-
         <Route
           path="/patient/dashboard"
           element={
@@ -192,17 +166,6 @@ function App() {
             <PrivateLayout>
               <ProtectedRoute role="patient">
                 <PatientDoctors />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
-
-        <Route
-          path="/patient/doctordetails/:doctorId"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="patient">
-                <DoctorDetails />
               </ProtectedRoute>
             </PrivateLayout>
           }
@@ -229,19 +192,16 @@ function App() {
             </PrivateLayout>
           }
         />
-
         <Route
-          path="/patient/profile"
+          path="/chat/:doctorId/:patientId"
           element={
             <PrivateLayout>
-              <ProtectedRoute role="patient">
-                <PatientProfile />
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             </PrivateLayout>
           }
         />
-
-        {/* Default */}
         <Route path="*" element={<Navigate to={isLoggedIn ? '/home' : '/login'} replace />} />
       </Routes>
     </BrowserRouter>

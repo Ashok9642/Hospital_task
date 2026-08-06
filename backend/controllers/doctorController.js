@@ -119,7 +119,7 @@ const getDoctorAppointments = asyncHandler(async (req, res) => {
   const appointments = await Appointment.find({
     doctor: doctor._id,
   })
-    .populate('patient', 'name email phone')
+    .populate('patient', 'name email phone rejectionReason')
     .sort({
       date: -1,
     });
@@ -133,6 +133,7 @@ const getDoctorAppointments = asyncHandler(async (req, res) => {
     date: app.date,
     time: app.time,
     status: app.status,
+    rejectionReason: app.rejectionReason,
   }));
 
   res.status(200).json({

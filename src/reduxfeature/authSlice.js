@@ -3,7 +3,6 @@ import axios from 'axios';
 
 const API = 'http://localhost:5000';
 
-// 🔐 LOGIN
 export const loginUser = createAsyncThunk('auth/loginUser', async (data, { rejectWithValue }) => {
   try {
     const res = await axios.post(`${API}/api/login`, data, {
@@ -14,8 +13,6 @@ export const loginUser = createAsyncThunk('auth/loginUser', async (data, { rejec
     return rejectWithValue(err.response?.data);
   }
 });
-
-// 🔐 LOAD USER (SESSION RESTORE)
 export const loadUser = createAsyncThunk('auth/loadUser', async (_, { rejectWithValue }) => {
   try {
     const res = await axios.get(`${API}/api/auth/me`, {
@@ -33,7 +30,7 @@ const authSlice = createSlice({
     user: null,
     isLoggedIn: false,
     loading: false,
-    initialized: false, // 🔥 IMPORTANT FIX
+    initialized: false,
   },
 
   reducers: {
@@ -45,8 +42,6 @@ const authSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-
-      // ================= LOAD USER =================
       .addCase(loadUser.pending, (state) => {
         state.loading = true;
       })
@@ -61,8 +56,6 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
         state.initialized = true;
       })
-
-      // ================= LOGIN =================
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
       })

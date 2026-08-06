@@ -1,6 +1,8 @@
 const Appointment = require('../models/Appointment');
 const Patient = require('../models/Patient');
 const asyncHandler = require('../middleware/asyncHandler');
+const { getIO } = require('../socket/socket');
+const Doctor = require('../models/Doctor');
 
 // Create Appointment
 const createAppointment = asyncHandler(async (req, res) => {
@@ -35,13 +37,18 @@ const createAppointment = asyncHandler(async (req, res) => {
 
     status: status || 'Pending',
   });
-
   res.status(201).json({
     success: true,
 
     message: 'Appointment created successfully',
 
     data: appointment,
+  });
+  const doctor = await Doctor.findById(doctorId);
+  const io = getIO();
+
+  io.to(`doctor_${doctorId}`).emit('newAppointment', {
+    message: 'New appointment received',
   });
 });
 
