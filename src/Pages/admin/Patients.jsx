@@ -72,8 +72,6 @@ const Patients = () => {
     setEditId(patient._id);
     setShowModal(true);
   };
-
-  // SUBMIT (CREATE + UPDATE)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -85,6 +83,7 @@ const Patients = () => {
           age: formData.age,
           gender: formData.gender,
           phone: formData.phone,
+          email: formData.email,
         });
 
         setPatients((prev) => prev.map((p) => (p._id === editId ? { ...p, ...formData } : p)));
@@ -108,6 +107,7 @@ const Patients = () => {
           age: formData.age,
           gender: formData.gender,
           phone: formData.phone,
+          email: formData.email,
         });
 
         setPatients((prev) => [...prev, patientRes.data]);
@@ -134,6 +134,7 @@ const Patients = () => {
     { headerName: 'Age', field: 'age', flex: 1 },
     { headerName: 'Gender', field: 'gender', flex: 1 },
     { headerName: 'Phone', field: 'phone', flex: 2 },
+    { headerName: 'Email', field: 'email', flex: 2 },
     {
       headerName: 'Actions',
       field: '_id',
@@ -212,15 +213,17 @@ const Patients = () => {
                 disabled={!!editId}
               />
 
-              <input
-                name="password"
-                type="password"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full border rounded p-2 mb-2"
-                required={!editId}
-              />
+              {!editId && (
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full border rounded p-2 mb-2"
+                  required
+                />
+              )}
 
               <input
                 name="age"

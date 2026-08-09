@@ -61,6 +61,7 @@ export default function BookAppointment() {
               name="date"
               value={formData.date}
               onChange={handleChange}
+              min={new Date().toISOString().split('T')[0]}
               className="w-full border rounded-lg px-4 py-3"
               required
             />

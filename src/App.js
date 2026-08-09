@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Chat from './Pages/Chat/Chat';
+import ErrorBoundary from './Components/Errorboundaries';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { loadUser } from './reduxfeature/authSlice';
@@ -75,136 +76,199 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* SAME ROUTES */}
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          {/* SAME ROUTES */}
 
-        <Route
-          path="/signup"
-          element={
-            isLoggedIn ? (
-              <Navigate to="/home" replace />
-            ) : (
-              <PublicLayout>
-                <Signup />
-              </PublicLayout>
-            )
-          }
-        />
+          <Route
+            path="/signup"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/home" replace />
+              ) : (
+                <PublicLayout>
+                  <Signup />
+                </PublicLayout>
+              )
+            }
+          />
 
-        <Route
-          path="/login"
-          element={
-            isLoggedIn ? (
-              <Navigate to="/home" replace />
-            ) : (
-              <PublicLayout>
-                <Login />
-              </PublicLayout>
-            )
-          }
-        />
+          <Route
+            path="/login"
+            element={
+              isLoggedIn ? (
+                <Navigate to="/home" replace />
+              ) : (
+                <PublicLayout>
+                  <Login />
+                </PublicLayout>
+              )
+            }
+          />
 
-        <Route
-          path="/home"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute>
-                <Home />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
+          <Route
+            path="/home"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="admin">
+                  <AdminDashboard />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
 
-        <Route
-          path="/doctor/dashboard"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="doctor">
-                <DoctorDashboard />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
+          <Route
+            path="/admin/doctors"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="admin">
+                  <AdminDoctors />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
 
-        <Route
-          path="/doctor/patients"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="doctor">
-                <DoctorPatients />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
+          <Route
+            path="/admin/patients"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="admin">
+                  <AdminPatients />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
 
-        <Route
-          path="/doctor/appointments"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="doctor">
-                <DoctorAppointments />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
+          <Route
+            path="/admin/appointments"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="admin">
+                  <AdminAppointments />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/doctor/dashboard"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="doctor">
+                  <DoctorDashboard />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
 
-        <Route
-          path="/patient/dashboard"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="patient">
-                <PatientDashboard />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
+          <Route
+            path="/doctor/patients"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="doctor">
+                  <DoctorPatients />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
 
-        <Route
-          path="/patient/doctors"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="patient">
-                <PatientDoctors />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
+          <Route
+            path="/doctor/appointments"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="doctor">
+                  <DoctorAppointments />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
 
-        <Route
-          path="/patient/booking/:doctorId"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="patient">
-                <BookAppointment />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
+          <Route
+            path="/patient/dashboard"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="patient">
+                  <PatientDashboard />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
 
-        <Route
-          path="/patient/appointments"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute role="patient">
-                <PatientAppointments />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
-        <Route
-          path="/chat/:doctorId/:patientId"
-          element={
-            <PrivateLayout>
-              <ProtectedRoute>
-                <Chat />
-              </ProtectedRoute>
-            </PrivateLayout>
-          }
-        />
-        <Route path="*" element={<Navigate to={isLoggedIn ? '/home' : '/login'} replace />} />
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/patient/doctors"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="patient">
+                  <PatientDoctors />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/patient/profile"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="patient">
+                  <PatientProfile />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
+
+          <Route
+            path="/patient/booking/:doctorId"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="patient">
+                  <BookAppointment />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/patient/doctordetails/:id"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="patient">
+                  <DoctorDetails />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/patient/appointments"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute role="patient">
+                  <PatientAppointments />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
+          <Route
+            path="/chat/:doctorId/:patientId"
+            element={
+              <PrivateLayout>
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              </PrivateLayout>
+            }
+          />
+          <Route path="*" element={<Navigate to={isLoggedIn ? '/home' : '/login'} replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

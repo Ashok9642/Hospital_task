@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
 export default function DoctorDetails() {
-  const { doctorId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [doctor, setDoctor] = useState(null);
@@ -12,7 +12,8 @@ export default function DoctorDetails() {
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
-        const res = await api.get(`/doctors/${doctorId}`);
+        const res = await api.get(`/doctors/${id}`);
+        console.log('dataaa', res.data);
         setDoctor(res.data.data);
       } catch (error) {
         console.log(error);
@@ -21,17 +22,17 @@ export default function DoctorDetails() {
       }
     };
 
-    if (doctorId) {
+    if (id) {
       fetchDoctor();
     }
-  }, [doctorId]);
+  }, [id]);
 
   if (loading) {
     return <h2>Loading...</h2>;
   }
 
-  if (!doctor) {
-    return <h2>Doctor not found</h2>;
+  if (!id) {
+    return <h2>Doctor not founsssd</h2>;
   }
 
   return (

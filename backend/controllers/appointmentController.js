@@ -57,6 +57,7 @@ const getAppointments = asyncHandler(async (req, res) => {
   const patient = await Patient.findOne({
     userId: req.user.id,
   });
+  console.log('patients_details', patient);
 
   if (!patient) {
     const error = new Error('Patient not found');

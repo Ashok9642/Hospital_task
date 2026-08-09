@@ -81,6 +81,7 @@ const getDoctorPatients = asyncHandler(async (req, res) => {
   const patients = appointments.map((app) => ({
     appointmentId: app._id,
     patientId: app.patient?._id,
+    doctorId: doctor._id,
     name: app.patient?.name,
     age: app.patient?.age,
     gender: app.patient?.gender,

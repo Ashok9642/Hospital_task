@@ -7,6 +7,7 @@ const {
   getProfile,
   updateProfile,
   getPatientDashboard,
+  getPatientById,
 } = require('../controllers/patientController');
 
 const verifyToken = require('../middleware/auth');
@@ -20,5 +21,6 @@ router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 
 router.get('/dashboard', getPatientDashboard);
+router.get('/:id', getPatientById);
 
 module.exports = router;

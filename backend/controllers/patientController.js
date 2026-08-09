@@ -10,6 +10,9 @@ const getPatients = asyncHandler(async (req, res) => {
 
 const getPatientById = asyncHandler(async (req, res) => {
   const patient = await Patient.findById(req.params.id);
+  // console.log('check', req.params.id);
+  // console.log('check1', patient);
+  // return false;
 
   if (!patient) {
     const error = new Error('Patient not found');
@@ -20,14 +23,15 @@ const getPatientById = asyncHandler(async (req, res) => {
   res.status(200).json(patient);
 });
 const createPatient = asyncHandler(async (req, res) => {
-  const { userId, name, age, gender, phone } = req.body;
-
+  const { userId, name, age, email, gender, phone } = req.body;
+  console.log(req.body);
   const patient = await Patient.create({
     userId,
     name,
     age,
     gender,
     phone,
+    email,
   });
 
   res.status(201).json({

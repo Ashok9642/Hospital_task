@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/api';
 import { formatDate, formatTime } from '../../utils/dateFormatter';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 export default function MyAppointments() {
   const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
     fetchAppointments();
   }, []);
+  const { user } = useSelector((state) => state.auth);
 
   const fetchAppointments = async () => {
     try {
@@ -15,7 +18,7 @@ export default function MyAppointments() {
       const res = await api.get('/appointments');
 
       setAppointments(res.data.data);
-      console.log(res.data); // ✅ correct
+      console.log('appointmentdata', res.data); // ✅ correct
     } catch (err) {
       console.log(err);
     }
@@ -73,18 +76,24 @@ export default function MyAppointments() {
                   </span>
                 </td>
 
-                {
-                  <td className="p-3">
-                    {app.status === 'Upcoming' && (
-                      <button
-                        onClick={() => cancelAppointment(app._id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+                <td className="p-3">
+                  <div className="flex gap-2">
+                    {app.status === 'Completed' && (
+                      <Link
+                        to={`/chat/${app.doctor._id}/${app.patient._id}`}
+                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                       >
-                        Cancel
-                      </button>
+                        Chat
+                      </Link>
                     )}
-                  </td>
-                }
+                    {/* <Link
+                      to={`/chat/${app.doctor.userId}/${user.id}`}
+                      className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                    >
+                      Chat
+                    </Link> */}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
